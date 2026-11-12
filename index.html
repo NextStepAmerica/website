@@ -189,18 +189,19 @@
       </div>
       <div class="form-card">
         <form id="guide-form" novalidate>
-          <h3>Recevez-le par email</h3>
-          <p class="small">Gratuit, en quelques secondes</p>
+          <h3>Recevez-le gratuitement</h3>
+          <p class="small">Téléchargement immédiat</p>
           <label for="prenom">Votre prénom</label>
           <input id="prenom" name="prenom" type="text" autocomplete="given-name" required>
           <label for="email">Votre email</label>
           <input id="email" name="email" type="email" autocomplete="email" required>
-          <button class="btn btn-gold" type="submit">Envoyez-moi le guide</button>
+          <button class="btn btn-gold" type="submit">Je veux le guide</button>
           <p class="note">Pas de spam. Désinscription à tout moment</p>
         </form>
         <div class="thanks" id="guide-thanks">
           <h3>Merci <span id="thanks-name"></span> !</h3>
-          <p class="small">Le guide arrive dans votre boîte email. Pensez à vérifier vos spams</p>
+          <p class="small">Votre guide est prêt</p>
+          <a class="btn btn-gold" id="free-guide-link" href="liste-gratuite-90-premiers-jours.pdf" download target="_blank" rel="noopener">Télécharger le guide (PDF)</a>
         </div>
       </div>
     </div>
@@ -280,7 +281,7 @@
    guidePrice / consultPrice : prix affichés
 ================================================================ */
 const CONFIG = {
-  formAction:   "",
+  formAction:   "https://formspree.io/f/xkjrgbnb",
   contactEmail: "next.step.america.cad.usd@gmail.com",
   guideLink:    "https://buy.stripe.com/6oU5kF0JNcqO1d5dHU8ww00",
   guidePrice:   "29 $",
@@ -304,7 +305,12 @@ form.addEventListener('submit', async e => {
   const prenom = form.prenom.value.trim(), email = form.email.value.trim();
   if (!prenom || !/^\S+@\S+\.\S+$/.test(email)) { (!prenom ? form.prenom : form.email).focus(); return; }
   if (CONFIG.formAction) {
-    try { await fetch(CONFIG.formAction, { method: 'POST', mode: 'no-cors', body: new FormData(form) }); } catch (err) {}
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    const data = new FormData(form);
+    data.append('_subject', 'Guide gratuit – ' + prenom);
+    try { await fetch(CONFIG.formAction, { method: 'POST', headers: { 'Accept': 'application/json' }, body: data }); } catch (err) {}
+    btn.disabled = false;
   } else {
     const body = `Bonjour,\n\nJe souhaite recevoir le guide gratuit.\n\nPrénom : ${prenom}\nEmail : ${email}`;
     window.location.href = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent('Guide gratuit – ' + prenom)}&body=${encodeURIComponent(body)}`;
